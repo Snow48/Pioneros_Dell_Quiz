@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pioneros H2-27 (Dell) — Simulador de Quiz</title>
+
+  <!-- Fuente Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            dell: {
+              50: '#eff8ff',
+              100: '#dbeefe',
+              200: '#bfe2fe',
+              500: '#0076ce',
+              600: '#0063b1',
+              700: '#004c8c',
+              800: '#073c6d',
+              900: '#0c2d52',
+            },
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-dell-100 selection:text-dell-900">
+
+  <!-- Barra de navegación superior -->
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <button id="header-home-btn" class="flex items-center gap-3 text-left group focus:outline-none">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-dell-500 to-sky-400 flex items-center justify-center shadow-md shadow-dell-500/20 group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold tracking-tight leading-tight">Pioneros H2-27</h1>
+          <p class="text-[11px] sm:text-xs text-slate-400 font-medium">Entrenador Dell • 92 preguntas en 6 bloques</p>
+        </div>
+      </button>
+
+      <div class="flex items-center gap-2">
+        <button id="nav-back-btn" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs sm:text-sm font-medium text-slate-200 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          <span>Inicio</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor principal -->
+  <main class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- ==================== VISTA 1: INICIO (DASHBOARD) ==================== -->
+    <section id="view-home" class="space-y-6">
+
+      <!-- Panel de estadísticas principales -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Panel de entrenamiento</h2>
+            <p class="text-xs sm:text-sm text-slate-500">92 preguntas en 6 bloques • Progreso guardado en este navegador</p>
+          </div>
+          <button id="btn-open-reset-all" class="text-xs font-medium text-slate-500 hover:text-rose-600 px-3 py-1.5 rounded-lg hover:bg-rose-50 transition-colors flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Reiniciar todo
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-100">
+            <p class="text-xs font-medium text-slate-500">Banco total</p>
+            <div class="flex items-baseline gap-1.5 mt-1">
+              <p id="stat-bank-total" class="text-2xl font-extrabold text-slate-900">92</p>
+              <span class="text-[11px] font-medium text-slate-500">en 6 bloques</span>
+            </div>
+          </div>
+          <div class="bg-dell-50/70 rounded-xl p-3.5 border border-dell-100">
+            <p class="text-xs font-medium text-dell-700">Mejor Reto Rápido</p>
+            <p class="text-2xl font-extrabold text-dell-600 mt-1 tabular-nums"><span id="stat-best-score">0</span> <span class="text-xs font-semibold">pts</span></p>
+          </div>
+          <div class="bg-emerald-50/70 rounded-xl p-3.5 border border-emerald-100">
+            <p class="text-xs font-medium text-emerald-700">% Acierto global</p>
+            <div class="flex items-baseline gap-2 mt-1">
+              <p id="stat-accuracy" class="text-2xl font-extrabold text-emerald-600">0%</p>
+              <span id="stat-total-answered" class="text-[11px] font-medium text-emerald-700/70">0 resp.</span>
+            </div>
+          </div>
+          <div class="bg-amber-50/80 rounded-xl p-3.5 border border-amber-200/70">
+            <p class="text-xs font-medium text-amber-800">Fallos guardados</p>
+            <p id="stat-failed" class="text-2xl font-extrabold text-amber-600 mt-1">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modos principales de juego -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Modo 1: Reto Rápido -->
+        <div class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-dell-900 to-dell-700 text-white rounded-2xl p-6 shadow-md flex flex-col justify-between">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 text-sky-200 text-xs font-semibold mb-3">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Simulación de competición
+            </div>
+            <h3 class="text-xl font-extrabold tracking-tight">Reto Rápido (5 preguntas)</h3>
+            <p class="text-sm text-sky-100/90 mt-2 leading-relaxed">
+              5 preguntas aleatorias de las 92 con cronómetro por pregunta, tiempo total y puntuación por acierto, velocidad y racha.
+            </p>
+          </div>
+          <button id="btn-start-challenge" class="mt-6 w-full py-3.5 px-4 rounded-xl bg-white text-dell-900 hover:bg-sky-50 active:scale-[0.99] font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+            <span>Lanzar Reto Rápido</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modo 3: Repaso de Fallos -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Aprendizaje dirigido
+              </span>
+              <button id="btn-open-clear-fails" class="hidden text-xs font-semibold text-rose-600 hover:text-rose-700 hover:underline">
+                Limpiar historial
+              </button>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Repaso de Fallos</h3>
+            <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+              Practica solo las preguntas que hayas fallado. Al acertar una pregunta en cualquier modo, se elimina automáticamente de esta lista.
+            </p>
+          </div>
+          <button id="btn-start-failed" class="mt-6 w-full py-3.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed text-white active:scale-[0.99] font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+            <span id="btn-start-failed-text">Sin fallos pendientes</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modo 2: Práctica Libre por Temática -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900">Práctica Libre por Temática</h3>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Elige uno de los 6 bloques temáticos o repasa las 92 preguntas mezcladas</p>
+          </div>
+
+          <!-- Toggle avance automático rápido -->
+          <label class="inline-flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 px-3 py-2 rounded-xl border border-slate-200/80 self-start sm:self-auto">
+            <input id="toggle-auto-advance" type="checkbox" class="sr-only peer" />
+            <div class="relative w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-dell-500"></div>
+            <span class="text-xs font-semibold text-slate-700">Avance rápido al acertar</span>
+          </label>
+        </div>
+
+        <!-- Botón Todas las temáticas -->
+        <button data-category="all" class="category-btn w-full mb-3 p-4 rounded-xl border-2 border-dell-500/20 bg-dell-50/50 hover:bg-dell-50 hover:border-dell-500 transition-all text-left flex items-center justify-between gap-3 group">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-dell-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
+              92
+            </div>
+            <div>
+              <p class="font-bold text-slate-900 group-hover:text-dell-700 transition-colors">Todas las temáticas mezcladas (92)</p>
+              <p class="text-xs text-slate-500">Banco completo de los 6 bloques en orden aleatorio</p>
+            </div>
+          </div>
+          <svg class="w-5 h-5 text-dell-500 shrink-0 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <!-- Grid de los 6 bloques temáticos -->
+        <div id="categories-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Inyectado dinámicamente -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VISTA 2: QUIZ ACTIVO ==================== -->
+    <section id="view-quiz" class="hidden space-y-5">
+
+      <!-- Cabecera de progreso y cronómetros -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <span id="quiz-mode-badge" class="px-2.5 py-1 rounded-lg bg-dell-50 text-dell-700 text-xs font-bold">Modo</span>
+            <span id="quiz-progress-text" class="text-xs sm:text-sm font-bold text-slate-700">Pregunta 1 de 5</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-bold">
+            <span class="inline-flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span id="live-correct">0</span>
+            </span>
+            <span class="inline-flex items-center gap-1 text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span id="live-wrong">0</span>
+            </span>
+            <span id="live-score-wrap" class="hidden items-center gap-1 text-dell-700 bg-dell-50 px-2.5 py-1 rounded-lg tabular-nums">
+              <span id="live-score">0</span> pts
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg tabular-nums" title="Tiempo pregunta actual | Tiempo total acumulado">
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span id="live-timer">0.0s</span>
+              <span class="text-slate-300">|</span>
+              <span id="live-total-timer" class="text-slate-500 font-semibold">0.0s</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Barra de progreso -->
+        <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+          <div id="quiz-progress-bar" class="h-full bg-gradient-to-r from-dell-500 to-sky-400 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Tarjeta de pregunta -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 sm:p-7">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span id="question-category-tag" class="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 text-[11px] sm:text-xs font-semibold">
+            Bloque
+          </span>
+          <span id="question-id-tag" class="text-[11px] font-semibold text-slate-400">#1</span>
+        </div>
+
+        <h2 id="question-text" class="text-lg sm:text-xl font-bold text-slate-900 leading-snug mb-6">
+          Cargando pregunta...
+        </h2>
+
+        <!-- Opciones barajadas -->
+        <div id="options-container" class="space-y-3"></div>
+
+        <!-- Feedback y botón siguiente -->
+        <div id="feedback-area" class="hidden mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div id="feedback-message" class="flex items-start gap-2.5 text-sm font-semibold"></div>
+          <button id="btn-next-question" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-dell-500 hover:bg-dell-600 active:scale-[0.99] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 shrink-0">
+            <span id="btn-next-label">Siguiente</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <p class="hidden sm:block text-center text-xs text-slate-400">
+        Atajos: teclas <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-semibold">1</kbd>, <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-semibold">2</kbd>, <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-semibold">3</kbd> para responder y <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-semibold">Enter</kbd> o <kbd class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-semibold">Espacio</kbd> para continuar.
+      </p>
+    </section>
+
+    <!-- ==================== VISTA 3: RESULTADOS ==================== -->
+    <section id="view-results" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 sm:p-8 text-center">
+        <div id="result-icon-wrap" class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4"></div>
+        <h2 id="result-title" class="text-2xl sm:text-3xl font-extrabold text-slate-900">¡Sesión completada!</h2>
+        <p id="result-subtitle" class="text-sm sm:text-base text-slate-500 mt-1">Resumen de tu rendimiento</p>
+
+        <!-- Métricas de la sesión -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-6 text-left">
+          <div class="bg-emerald-50/70 border border-emerald-100 rounded-xl p-3.5">
+            <p class="text-xs font-medium text-emerald-700">Aciertos</p>
+            <p id="res-correct" class="text-2xl font-extrabold text-emerald-600 mt-1">0</p>
+          </div>
+          <div class="bg-rose-50/70 border border-rose-100 rounded-xl p-3.5">
+            <p class="text-xs font-medium text-rose-700">Errores</p>
+            <p id="res-wrong" class="text-2xl font-extrabold text-rose-600 mt-1">0</p>
+          </div>
+          <div class="bg-dell-50/70 border border-dell-100 rounded-xl p-3.5">
+            <p class="text-xs font-medium text-dell-700">Precisión</p>
+            <p id="res-percent" class="text-2xl font-extrabold text-dell-600 mt-1">0%</p>
+          </div>
+          <div class="bg-slate-50 border border-slate-200/70 rounded-xl p-3.5">
+            <p class="text-xs font-medium text-slate-500">Tiempo total</p>
+            <p id="res-total-time" class="text-2xl font-extrabold text-slate-800 mt-1 tabular-nums">0.0s</p>
+          </div>
+          <div class="col-span-2 sm:col-span-1 bg-slate-50 border border-slate-200/70 rounded-xl p-3.5">
+            <p class="text-xs font-medium text-slate-500">Media / preg.</p>
+            <p id="res-avg-time" class="text-2xl font-extrabold text-slate-800 mt-1 tabular-nums">0.0s</p>
+          </div>
+        </div>
+
+        <!-- Banner de puntuación (solo Reto Rápido) -->
+        <div id="res-score-banner" class="hidden mt-4 p-4 rounded-xl bg-gradient-to-r from-slate-900 to-dell-800 text-white flex items-center justify-between gap-3">
+          <div class="text-left">
+            <p class="text-xs text-sky-200 font-semibold">Puntuación del Reto Rápido</p>
+            <p id="res-record-note" class="text-xs sm:text-sm text-slate-300">Acierto + velocidad + bonificación por racha</p>
+          </div>
+          <p class="text-2xl sm:text-3xl font-extrabold text-sky-300 tabular-nums shrink-0"><span id="res-score">0</span> <span class="text-sm font-semibold">pts</span></p>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+          <button id="btn-retry-session-fails" class="hidden px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Repasar fallos de esta sesión</span>
+          </button>
+          <button id="btn-new-session" class="px-5 py-3 rounded-xl bg-dell-500 hover:bg-dell-600 text-white font-bold text-sm shadow-sm transition-all">
+            Repetir modo
+          </button>
+          <button id="btn-go-home" class="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-all">
+            Volver al inicio
+          </button>
+        </div>
+      </div>
+
+      <!-- Listado de preguntas falladas en la sesión -->
+      <div id="session-fails-panel" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 bg-slate-50/70 border-b border-slate-200/70 flex items-center gap-2.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+          <h3 class="font-bold text-slate-900 text-sm sm:text-base">Preguntas falladas en esta sesión (<span id="session-fails-count">0</span>)</h3>
+        </div>
+        <div id="session-fails-list" class="divide-y divide-slate-100"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal de confirmación reutilizable (sin usar confirm/alert) -->
+  <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-200">
+      <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <h3 id="modal-title" class="text-lg font-bold text-slate-900">Confirmar acción</h3>
+      <p id="modal-desc" class="text-sm text-slate-600 mt-1.5 leading-relaxed"></p>
+      <div class="mt-6 flex items-center justify-end gap-2.5">
+        <button id="btn-modal-cancel" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition-colors">
+          Cancelar
+        </button>
+        <button id="btn-modal-confirm" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm transition-colors">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de notificación -->
+  <div id="toast" class="pointer-events-none fixed bottom-5 left-1/2 -translate-x-1/2 z-50 opacity-0 translate-y-2 transition-all duration-300 bg-slate-900 text-white text-xs sm:text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg">
+    Mensaje
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. DEFINICIÓN DE LOS 6 BLOQUES TEMÁTICOS PRINCIPALES
+       ========================================================================= */
+    const CATEGORIES = [
+      { id: 1, short: 'Bloque 1', title: 'Incentivos de Canal, Rebates y KPO', desc: 'Gates D&CP, Tech Refresh, Focus Account y KPO' },
+      { id: 2, short: 'Bloque 2', title: 'Estrategia Dell, DTA y Ecosistema de Partners', desc: 'Dell Technologies Advantage, 4 pasos y partners' },
+      { id: 3, short: 'Bloque 3', title: 'IA en la Nube, NVIDIA AI Enterprise y GB10', desc: 'Costes de tokens, agentes, licencias y Dell Pro Max GB10' },
+      { id: 4, short: 'Bloque 4', title: 'Workstations Dell Pro Precision y Dell Pro Max', desc: 'Nomenclatura 2026, series 5/7/9, ISV y RMT Pro' },
+      { id: 5, short: 'Bloque 5', title: 'Gama Dell Pro (3, 5 y 7), AI PC y Servicios', desc: 'Diseño modular, LPCAMM2, Copilot+ PC y APEX' },
+      { id: 6, short: 'Bloque 6', title: 'Procesadores Intel e Intel vPro', desc: 'Core Ultra, Core Series 3, Xeon, 18A, AMX y Fleet Services' }
+    ];
+
+    /* =========================================================================
+       2. BANCO COMPLETO DE LAS 92 PREGUNTAS (AGRUPADAS EN 6 BLOQUES)
+       Nota: La opción en índice 0 es siempre la correcta; se barajan al jugar.
+       ========================================================================= */
+    const QUESTIONS = [
+      // ==================== BLOQUE 1: INCENTIVOS DE CANAL, REBATES Y KPO (15) ====================
+      {
+        id: 1, category: 1,
+        question: '¿Qué gate de Sell-in de D&CP tiene que cumplir un mayorista para cobrar al menos la mitad del rebate?',
+        options: [
+          'El segundo: es el que abre el rebate, entero o a medias',
+          'Cualquiera: cada uno de los dos abre la mitad del rebate',
+          'El primero: es el que abre el rebate, entero o a medias'
+        ],
+        correct: 0
+      },
+      {
+        id: 2, category: 1,
+        question: '¿En qué se diferencian el Tech Refresh del metal partner y el del mayorista?',
+        options: [
+          'En el porcentaje y en el colectivo que lo cobra',
+          'En el porcentaje y en las transiciones elegibles',
+          'En el porcentaje y en si incluye servicios adjuntos'
+        ],
+        correct: 0
+      },
+      {
+        id: 3, category: 1,
+        question: 'Un mayorista de Dell está autorizado en Client, Server y Networking. ¿Qué Tech Refresh puede cobrar?',
+        options: [
+          'Ninguno: es para el Storage Authorized Distributor',
+          'El 2 %, como cualquier mayorista autorizado de Dell',
+          'El 10 %, igual que el metal partner al que vende'
+        ],
+        correct: 0
+      },
+      {
+        id: 4, category: 1,
+        question: '¿Qué Focus Account Incentive se paga si una venta califica para Competitive Swap y para Desarrollo?',
+        options: [
+          'La de Competitive Swap, que va antes que Desarrollo',
+          'La de Desarrollo, que va antes que Competitive Swap',
+          'La de mayor importe de las dos para el partner'
+        ],
+        correct: 0
+      },
+      {
+        id: 5, category: 1,
+        question: '¿Qué tiene que lograr un mayorista para cobrar el KPO de un trimestre?',
+        options: [
+          'Alcanzar su objetivo de partners Authorized y Gold activos',
+          'Activar al menos un partner Authorized y uno Gold en la línea',
+          'Superar sus ventas medias de los tres últimos trimestres'
+        ],
+        correct: 0
+      },
+      {
+        id: 6, category: 1,
+        question: '¿Qué incentivo es la palanca de crecimiento del metal partner, como el KPO lo es del mayorista?',
+        options: [
+          'La Focus Account Incentive, por captar y desarrollar cuentas',
+          'El rebate de servicios, por adjuntar ProSupport Plus de 3 años',
+          'El rebate base Focus, por vender soluciones Focus de Dell'
+        ],
+        correct: 0
+      },
+      {
+        id: 7, category: 1,
+        question: '¿Qué cobra un metal partner por vender AI Optimized a una cuenta de la lista Focus de Dell?',
+        options: [
+          'La base de AI Optimized, sin Focus Account Incentive',
+          'La base y la Focus Account Incentive de desarrollo',
+          'La base y la Focus Account Incentive de adquisición'
+        ],
+        correct: 0
+      },
+      {
+        id: 8, category: 1,
+        question: '¿Qué distingue al Competitive Swap de las otras vías de la Focus Account Incentive?',
+        options: [
+          'Lo identifica el partner y cubre Storage y Cyber Resilience',
+          'Lo identifica el partner y cubre también Server & Networking',
+          'Lo define Dell en su lista y cubre también Server & Networking'
+        ],
+        correct: 0
+      },
+      {
+        id: 9, category: 1,
+        question: 'Un metal partner no tiene la competencia de portfolio de Server+. ¿Qué rebate deja de cobrar en Server+?',
+        options: [
+          'El rebate base que pagan sus ventas de Server+',
+          'El rebate de servicios de Server+ por ProSupport Plus',
+          'La Focus Account Incentive de sus ventas de Server+'
+        ],
+        correct: 0
+      },
+      {
+        id: 10, category: 1,
+        question: '¿Qué genera para el mayorista una venta de Storage a un partner Platinum?',
+        options: [
+          'Base con tasa de Targeted Partner, pero no pago de KPO',
+          'Base con tasa de Targeted Partner y también pago de KPO',
+          'Base con la tasa de Titanium y también pago de KPO'
+        ],
+        correct: 0
+      },
+      {
+        id: 11, category: 1,
+        question: '¿Qué es para el mayorista un revendedor no inscrito en el Dell Technologies Partner Program?',
+        options: [
+          'Un Targeted Partner de la categoría Net New',
+          'Un Targeted Partner cuando alcance el umbral del KPO',
+          'Un Targeted Partner a partir de que sea Authorized'
+        ],
+        correct: 0
+      },
+      {
+        id: 12, category: 1,
+        question: '¿Cobra un metal partner sus rebates si compra a Dell a través de un mayorista autorizado?',
+        options: [
+          'Sí, igual que si comprara directamente a Dell',
+          'Sí, cuando el mayorista alcanza su objetivo de KPO',
+          'No: esas compras cuentan para el KPO del mayorista'
+        ],
+        correct: 0
+      },
+      {
+        id: 13, category: 1,
+        question: '¿Qué cambia en H2 en el rebate de servicios del metal partner en Server?',
+        options: [
+          'Pasa a pagarse únicamente por ProSupport Plus',
+          'Pasa a pagar un 1 % adicional sobre servicios',
+          'Pasa a pagarse también por ProSupport de 3 años'
+        ],
+        correct: 0
+      },
+      {
+        id: 14, category: 1,
+        question: '¿Cuenta como activo en el KPO un partner Gold que compra a su mayorista 4.000 $ de Server elegible en un trimestre?',
+        options: [
+          'Sí, porque supera el umbral de 3.000 $ fijado para Server',
+          'No, porque el umbral fijado para Server es de 6.000 $',
+          'No, porque debe repetir la compra el trimestre siguiente'
+        ],
+        correct: 0
+      },
+      {
+        id: 15, category: 1,
+        question: '¿A qué metal partner afecta la novedad de H2 en el rebate base Focus?',
+        options: [
+          'Al que vende Storage, que estrena productos Focus',
+          'Al que vende Client Peripherals, porque sube su tasa',
+          'Al que vende Client+, porque sube la tasa Client Focus'
+        ],
+        correct: 0
+      },
+
+      // ==================== BLOQUE 2: ESTRATEGIA DELL, DTA Y PARTNERS (15) ====================
+      {
+        id: 16, category: 2,
+        question: 'Los costes de tokens de la IA se disparan. ¿Qué medida de coste usa Dell para decidir dónde va cada carga?',
+        options: [
+          'El coste por resultado',
+          'El coste por token',
+          'El coste de la energía'
+        ],
+        correct: 0
+      },
+      {
+        id: 17, category: 2,
+        question: '¿Qué ventaja del modelo operativo de Dell refleja que da servicio al 97 % del Fortune 500?',
+        options: [
+          'El mayor motor de go-to-market del sector',
+          'Las soluciones de extremo a extremo n.º 1',
+          'La gran red global de servicios y soporte'
+        ],
+        correct: 0
+      },
+      {
+        id: 18, category: 2,
+        question: '¿Qué papel tiene Dell Services en los cuatro pasos que Dell propone al cliente?',
+        options: [
+          'Trazar el recorrido del cliente en el paso Planificar',
+          'Financiar la inversión del cliente en el paso Optimizar',
+          'Profundizar en las prioridades del cliente en el paso Explorar'
+        ],
+        correct: 0
+      },
+      {
+        id: 19, category: 2,
+        question: '¿A quién se refiere la cifra de más de 60.000 que Dell cita entre sus pruebas?',
+        options: [
+          'A profesionales de servicios de Dell y de sus partners',
+          'A partners y distribuidores del ecosistema de Dell',
+          'A profesionales de ventas y de servicios de Dell'
+        ],
+        correct: 0
+      },
+      {
+        id: 20, category: 2,
+        question: 'Un cliente recibe presupuestos de servidores más caros y con plazos más largos. ¿Qué fuerza del mercado lo explica?',
+        options: [
+          'La escasez de chips, memoria DRAM y almacenamiento NAND',
+          'La mayor demanda de energía de los centros de datos antiguos',
+          'La presión de costes y de talento que soporta el área de IT'
+        ],
+        correct: 0
+      },
+      {
+        id: 21, category: 2,
+        question: '¿Con qué argumento explica Dell que un cliente trabaje con varios partners en un mismo proyecto?',
+        options: [
+          'Ninguna organización lo cubre todo y el cliente busca especialización',
+          'Reparte el riesgo y evita que el cliente dependa de un único socio',
+          'Compara ofertas entre partners y consigue mejores precios por área'
+        ],
+        correct: 0
+      },
+      {
+        id: 22, category: 2,
+        question: '¿En cuál de los cuatro pasos que Dell propone al cliente entra el ecosistema de partners de Dell?',
+        options: [
+          'En el paso Construir',
+          'En el paso Planificar',
+          'En el paso Explorar'
+        ],
+        correct: 0
+      },
+      {
+        id: 23, category: 2,
+        question: '¿A qué resultado corresponde el 50 % del caso de Deloitte con Dell?',
+        options: [
+          'Un despliegue de IA y unas pruebas de concepto más rápidos',
+          'Unos tiempos de recuperación más cortos tras un ciberataque',
+          'Una huella del centro de datos y una latencia más bajas'
+        ],
+        correct: 0
+      },
+      {
+        id: 24, category: 2,
+        question: '¿Qué es Dell Technologies Advantage (DTA)?',
+        options: [
+          'El enfoque de Dell para conectar todo el entorno IT del cliente',
+          'El enfoque de Dell para llevar la IA del cliente a producción',
+          'El programa de Dell que premia al canal por vender soluciones'
+        ],
+        correct: 0
+      },
+      {
+        id: 25, category: 2,
+        question: '¿Qué dos prioridades de Dell Technologies Advantage atraviesan el puesto, el centro de datos y la IA?',
+        options: [
+          'Ciberseguridad y resiliencia, y acelerar resultados',
+          'Ciberseguridad y resiliencia, y la cadena de suministro',
+          'La cadena de suministro y los servicios globales de Dell'
+        ],
+        correct: 0
+      },
+      {
+        id: 26, category: 2,
+        question: '¿Qué reto comparten las prioridades «Escalar la IA con confianza» y «Acelerar resultados» de Dell Technologies Advantage?',
+        options: [
+          'La falta de perfiles especializados',
+          'La adaptación al cambio tecnológico',
+          'Los costes de datos y de tokens'
+        ],
+        correct: 0
+      },
+      {
+        id: 27, category: 2,
+        question: 'Un cliente quiere modernizar su IT sin un gran desembolso inicial. ¿Cuál de los cuatro pasos que propone Dell le encaja?',
+        options: [
+          'El paso Optimizar',
+          'El paso Construir',
+          'El paso Planificar'
+        ],
+        correct: 0
+      },
+      {
+        id: 28, category: 2,
+        question: 'Un cliente tiene un proveedor distinto para puesto, centro de datos e IA. ¿Qué le plantea Dell Technologies Advantage?',
+        options: [
+          'Que llevarlos por separado multiplica la complejidad y el riesgo',
+          'Que le conviene sumar soluciones más especializadas en cada área',
+          'Que su reto es tecnológico y se resuelve renovando los equipos'
+        ],
+        correct: 0
+      },
+      {
+        id: 29, category: 2,
+        question: '¿Por qué Dell integra la seguridad en cada capa del entorno IT del cliente?',
+        options: [
+          'Porque la seguridad tiene que estar en el diseño desde el principio',
+          'Porque cada capa necesita su propia herramienta de seguridad',
+          'Porque la computación cuántica ya ha roto el cifrado actual'
+        ],
+        correct: 0
+      },
+      {
+        id: 30, category: 2,
+        question: '¿Cómo encaja el ecosistema de partners en la idea de un solo socio de Dell Technologies Advantage?',
+        options: [
+          'Dell es el socio que orquesta ese ecosistema para el cliente',
+          'Dell vende y deja la ejecución del proyecto en manos del partner',
+          'Cada partner pasa a ser el socio único del cliente en su área'
+        ],
+        correct: 0
+      },
+
+      // ==================== BLOQUE 3: IA EN LA NUBE, NVIDIA AI ENTERPRISE Y GB10 (14) ====================
+      {
+        id: 31, category: 3,
+        question: '¿Para qué proyectos está pensada la licencia NVIDIA AI Enterprise?',
+        options: [
+          'Proyectos de infraestructura central, donde viene con el servidor',
+          'Proyectos de inferencia local con modelos grandes, de 20B o más',
+          'Proyectos de desarrollo open source con PyTorch, vLLM u Ollama'
+        ],
+        correct: 0
+      },
+      {
+        id: 32, category: 3,
+        question: '¿Qué está haciendo crecer el gasto de los clientes en IA en la nube?',
+        options: [
+          'Más tokens por tarea y un precio por token que se duplica',
+          'Más tokens por tarea, aunque el precio por token baja',
+          'Un precio por token que se duplica, con menos tokens por tarea'
+        ],
+        correct: 0
+      },
+      {
+        id: 33, category: 3,
+        question: '¿A qué freno de la IA en la nube corresponde el dato del 80 % de las organizaciones?',
+        options: [
+          'A la seguridad: agentes de IA con comportamientos de riesgo',
+          'A la soberanía: datos sensibles desplegados en el país',
+          'A la seguridad: empresas que exigen desplegar en local'
+        ],
+        correct: 0
+      },
+      {
+        id: 34, category: 3,
+        question: '¿Cómo cambia el gasto en tokens de un cliente que pasa de chatbots a agentes en la nube?',
+        options: [
+          'Pasa de discreto y predecible a continuo y sin techo',
+          'Sigue siendo predecible si contrata una suscripción',
+          'Pasa a ser continuo, pero el pago por uso vía API lo acota'
+        ],
+        correct: 0
+      },
+      {
+        id: 35, category: 3,
+        question: 'Un cliente quiere pasar a producción interna un chatbot con RAG en su Dell Pro Max con GB10. ¿Necesita pagar NVIDIA AI Enterprise?',
+        options: [
+          'No: puede ir a producción interna sin coste adicional',
+          'No en desarrollo, pero sí al pasar a producción interna',
+          'Sí: la necesita para usar CUDA y TensorRT en producción'
+        ],
+        correct: 0
+      },
+      {
+        id: 36, category: 3,
+        question: '¿Por qué la Dell Pro Max con GB10 da un coste de IA predecible?',
+        options: [
+          'Porque genera los tokens en local, sin coste por token',
+          'Porque genera los tokens en local, con una tarifa fija',
+          'Porque reparte el coste de los tokens en el departamento'
+        ],
+        correct: 0
+      },
+      {
+        id: 37, category: 3,
+        question: '¿Por qué los agentes de IA disparan el consumo de tokens frente a un chatbot?',
+        options: [
+          'Actúan sin esperar un prompt y pueden ejecutarse durante días',
+          'Esperan un prompt, pero cada respuesta consume miles de tokens',
+          'Actúan sin prompt, pero un humano valida cada uno de sus pasos'
+        ],
+        correct: 0
+      },
+      {
+        id: 38, category: 3,
+        question: '¿Por qué la Dell Pro Max con GB10 no necesita la licencia NVIDIA AI Enterprise?',
+        options: [
+          'Porque la licencia aporta soporte, no rendimiento',
+          'Porque la GB10 ya incluye esa licencia con su GPU',
+          'Porque aporta rendimiento en servidores, no en local'
+        ],
+        correct: 0
+      },
+      {
+        id: 39, category: 3,
+        question: '¿Qué puede usar gratis un equipo que desarrolla con una Dell Pro Max con GB10 sin NVIDIA AI Enterprise?',
+        options: [
+          'El stack open source y los contenedores públicos de NGC',
+          'El stack open source y las actualizaciones certificadas',
+          'Los contenedores públicos de NGC y los entornos VMware o Red Hat'
+        ],
+        correct: 0
+      },
+      {
+        id: 40, category: 3,
+        question: '¿Qué necesidad lleva una carga de IA de la Dell Pro Max con GB10 al centro de datos con Dell AI Factory?',
+        options: [
+          'Escala y cómputo compartido',
+          'Elasticidad y pago por uso',
+          'Coste de tokens cero'
+        ],
+        correct: 0
+      },
+      {
+        id: 41, category: 3,
+        question: 'Un cliente tiene un proyecto de IA. ¿Qué siguiente paso conviene proponerle con la Dell Pro Max con GB10?',
+        options: [
+          'Ofrecer al cliente una demostración de la GB10',
+          'Enviar al cliente la formación de Dell sobre la GB10',
+          'Ofrecer al cliente un arranque con dos GB10 apiladas'
+        ],
+        correct: 0
+      },
+      {
+        id: 42, category: 3,
+        question: '¿Cómo se trabaja con una Dell Pro Max con GB10 instalada en el CPD?',
+        options: [
+          'Por acceso remoto seguro con SSH o NVIDIA AI Workbench',
+          'Por acceso remoto seguro, si tiene NVIDIA AI Enterprise',
+          'Por acceso remoto seguro a través de la nube elástica'
+        ],
+        correct: 0
+      },
+      {
+        id: 43, category: 3,
+        question: '¿Cómo escala la IA de un cliente que empieza con una Dell Pro Max con GB10?',
+        options: [
+          'Con una segunda GB10 y, después, con Dell AI Factory en el CPD',
+          'Con cuatro GB10 apiladas y, después, con Dell AI Factory en el CPD',
+          'Con una segunda GB10 y, después, con Dell Pro Precision en el CPD'
+        ],
+        correct: 0
+      },
+      {
+        id: 44, category: 3,
+        question: 'Un cliente quiere ejecutar en local un modelo de 250B en FP4. ¿Qué configuración mínima lo cubre?',
+        options: [
+          'Dos Dell Pro Max con GB10 apiladas',
+          'Una Dell Pro Max con GB10',
+          'Una Dell Pro Max con GB300'
+        ],
+        correct: 0
+      },
+
+      // ==================== BLOQUE 4: WORKSTATIONS DELL PRO PRECISION Y DELL PRO MAX (16) ====================
+      {
+        id: 45, category: 4,
+        question: '¿Qué confirma que una workstation Dell funciona bien con el software profesional del cliente?',
+        options: [
+          'Las certificaciones ISV',
+          'Las pruebas según MIL-STD',
+          'La Unlimited Turbo Duration'
+        ],
+        correct: 0
+      },
+      {
+        id: 46, category: 4,
+        question: '¿En qué se convierte la Precision 7960 Tower con los nombres de 2026?',
+        options: [
+          'Dell Pro Precision 9 T4 y 9 T6',
+          'Dell Pro Precision 9 T2 y 7 T1',
+          'Dell Pro Precision 7 T1 y 7 R1'
+        ],
+        correct: 0
+      },
+      {
+        id: 47, category: 4,
+        question: '¿Qué workstation Dell lleva AMD Threadripper Pro de hasta 96 núcleos?',
+        options: [
+          'Precision 7875 Tower',
+          'Dell Pro Precision 9 T4',
+          'Dell Pro Max Tower T2'
+        ],
+        correct: 0
+      },
+      {
+        id: 48, category: 4,
+        question: '¿Qué workstation Dell de sobremesa ofrece gráficos profesionales a un precio competitivo?',
+        options: [
+          'Dell Pro Precision 7 T1',
+          'Dell Pro Precision 9 T2',
+          'Dell Pro Precision 9 T4'
+        ],
+        correct: 0
+      },
+      {
+        id: 49, category: 4,
+        question: '¿Qué torre Dell Pro Precision es la más ampliable de la gama?',
+        options: [
+          'Dell Pro Precision 9 T6',
+          'Dell Pro Precision 9 T4',
+          'Dell Pro Precision 9 T2'
+        ],
+        correct: 0
+      },
+      {
+        id: 50, category: 4,
+        question: '¿Qué ofrece la serie 9 de Dell Pro Precision que no ofrece la serie 7 de sobremesa?',
+        options: [
+          'Hasta dos GPU de 600 W y 4 TB de memoria',
+          'Intel Core Ultra y una GPU de 600 W',
+          'Hasta 128 GB de memoria y 24 TB'
+        ],
+        correct: 0
+      },
+      {
+        id: 51, category: 4,
+        question: 'Un usuario de Dell Pro 5 ya lo exprime con análisis de datos, sin trabajo gráfico. ¿Qué le propones?',
+        options: [
+          'Dell Pro Precision 5S',
+          'Dell Pro Precision 5',
+          'Dell Pro Max 16 Plus'
+        ],
+        correct: 0
+      },
+      {
+        id: 52, category: 4,
+        question: 'Un cliente quiere workstations Dell en el rack de su centro de datos, en 1U. ¿Cuál le propones?',
+        options: [
+          'Dell Pro Precision 7 R1',
+          'Precision 7960 Rack',
+          'Dell Pro Precision 9 T2'
+        ],
+        correct: 0
+      },
+      {
+        id: 53, category: 4,
+        question: '¿Qué portátiles de workstation Dell mantienen en 2026 el nombre Dell Pro Max?',
+        options: [
+          'Dell Pro Max 16 y 18 Plus',
+          'Dell Pro Max 14 y 16 Premium',
+          'Dell Pro Max 14 y 16'
+        ],
+        correct: 0
+      },
+      {
+        id: 54, category: 4,
+        question: '¿Qué distingue a los Dell Pro Precision 5 14S y 16S de los Dell Pro Precision 5 14 y 16?',
+        options: [
+          'Gráficos integrados potentes y chasis de aluminio',
+          'Gráficos dedicados de entrada y pantalla OLED Tandem',
+          'Pantalla OLED Tandem y gráficos NVIDIA Blackwell'
+        ],
+        correct: 0
+      },
+      {
+        id: 55, category: 4,
+        question: '¿Qué facilita la reparación de las workstations Dell Pro Precision?',
+        options: [
+          'Batería sustituible y acceso sin herramientas',
+          'Chasis sellado y memoria integrada en placa',
+          'Embalaje 100 % reciclado o renovable'
+        ],
+        correct: 0
+      },
+      {
+        id: 56, category: 4,
+        question: '¿Qué tecnología de memoria de las workstations Dell Pro Precision es exclusiva de Dell?',
+        options: [
+          'Reliable Memory Technology Pro',
+          'La memoria ECC de Intel Xeon',
+          'La memoria CAMM modular'
+        ],
+        correct: 0
+      },
+      {
+        id: 57, category: 4,
+        question: '¿Qué gana un usuario de Dell Pro 5 al pasar al Dell Pro Precision 5S?',
+        options: [
+          'Hasta 10 W más de TDP y gráficos Arc Pro',
+          'Un chasis más fino y algo más ligero',
+          'Una GPU dedicada de NVIDIA de entrada'
+        ],
+        correct: 0
+      },
+      {
+        id: 58, category: 4,
+        question: '¿Qué nombre recibe en 2026 el antiguo Dell Pro Max 14/16 Premium?',
+        options: [
+          'Dell Pro Precision 7 14/16',
+          'Dell Pro Precision 5 14/16',
+          'Dell Pro Precision 5 14S/16S'
+        ],
+        correct: 0
+      },
+      {
+        id: 59, category: 4,
+        question: '¿Para qué sirve la tarjeta Qualcomm AI 100 del Dell Pro Max 16 Plus?',
+        options: [
+          'Para inferencia de IA con una NPU dedicada',
+          'Para entrenar con 784 GB de memoria coherente',
+          'Para trabajar con hasta cuatro GPU a la vez'
+        ],
+        correct: 0
+      },
+      {
+        id: 60, category: 4,
+        question: 'Un cliente busca workstations portátiles premium para sus creadores y diseñadores. ¿Qué serie le propones?',
+        options: [
+          'Dell Pro Precision 7',
+          'Dell Pro Precision 5',
+          'Dell Pro Max Plus'
+        ],
+        correct: 0
+      },
+
+      // ==================== BLOQUE 5: GAMA DELL PRO (3, 5 Y 7), AI PC Y SERVICIOS (16) ====================
+      {
+        id: 61, category: 5,
+        question: '¿Qué permite la placa base modular común a los Dell Pro 3, 5 y 7?',
+        options: [
+          'Montar cada sistema con distinto silicio y batería',
+          'Usar el mismo chasis y la misma batería en la gama',
+          'Ampliar la memoria LPCAMM2 en los tres modelos'
+        ],
+        correct: 0
+      },
+      {
+        id: 62, category: 5,
+        question: '¿Qué mejora un 50 % en el Dell Pro 7 de 13" frente al Dell Pro Plus anterior?',
+        options: [
+          'El flujo de aire interior',
+          'La capacidad de batería',
+          'El tamaño del ventilador'
+        ],
+        correct: 0
+      },
+      {
+        id: 63, category: 5,
+        question: 'Un cliente equipa a su centro de llamadas con un presupuesto ajustado. ¿Qué Dell Pro le propones?',
+        options: [
+          'Dell Pro 3',
+          'Dell Pro 5',
+          'Dell Pro 7'
+        ],
+        correct: 0
+      },
+      {
+        id: 64, category: 5,
+        question: '¿A qué renuncia un usuario al pasar del Dell Pro 5 al Dell Pro 3?',
+        options: [
+          'A los gráficos 10Xe/12Xe y a las opciones premium',
+          'A la seguridad y la gestión empresariales',
+          'Al puerto USB-C modular de la placa base'
+        ],
+        correct: 0
+      },
+      {
+        id: 65, category: 5,
+        question: '¿Qué Dell Pro se recomienda como base para un despliegue amplio?',
+        options: [
+          'Dell Pro 5',
+          'Dell Pro 3',
+          'Dell Pro 7'
+        ],
+        correct: 0
+      },
+      {
+        id: 66, category: 5,
+        question: '¿Qué Dell Pro es el único con memoria LPCAMM2 ampliable?',
+        options: [
+          'Dell Pro 5',
+          'Dell Pro 7',
+          'Dell Pro 3'
+        ],
+        correct: 0
+      },
+      {
+        id: 67, category: 5,
+        question: '¿Qué unidad del AI PC quita a la CPU la IA del día a día?',
+        options: [
+          'La NPU, con menos consumo',
+          'La GPU, con tareas en paralelo',
+          'La CPU de alto rendimiento'
+        ],
+        correct: 0
+      },
+      {
+        id: 68, category: 5,
+        question: '¿Qué detalle de diseño da identidad de familia a toda la gama Dell Pro?',
+        options: [
+          'El color Magnetite',
+          'La bisagra de 3 nudillos',
+          'El chasis de magnesio'
+        ],
+        correct: 0
+      },
+      {
+        id: 69, category: 5,
+        question: '¿Qué dato de fiabilidad da Dell de sus PC comerciales frente a otros?',
+        options: [
+          'Más de 10 meses más de vida útil',
+          'Un 75 % menos de inactividad',
+          '873 $ de ahorro por cada PC'
+        ],
+        correct: 0
+      },
+      {
+        id: 70, category: 5,
+        question: '¿Qué servicio de Dell reduce un 75 % la inactividad de los PC?',
+        options: [
+          'APEX PC as a Service',
+          'Dell Lifecycle Hub',
+          'Dell Configuration Services'
+        ],
+        correct: 0
+      },
+      {
+        id: 71, category: 5,
+        question: '¿Qué nivel de AI PC corresponde a una NPU de más de 40 TOPS?',
+        options: [
+          'Copilot+ PC',
+          'AI PC estándar',
+          'AI workstation'
+        ],
+        correct: 0
+      },
+      {
+        id: 72, category: 5,
+        question: '¿Qué Dell se propone solo para la oficina básica en el AI PC comercial de 2026?',
+        options: [
+          'Dell Pro Essentials',
+          'Dell Pro Premium',
+          'Dell Pro Micro'
+        ],
+        correct: 0
+      },
+      {
+        id: 73, category: 5,
+        question: '¿Qué portátil es el más ligero de la gama Dell Pro?',
+        options: [
+          'Dell Pro Premium',
+          'Dell Pro 7',
+          'Dell Pro 5'
+        ],
+        correct: 0
+      },
+      {
+        id: 74, category: 5,
+        question: 'Un directivo duda entre un Dell XPS y un Dell Pro Premium. ¿Qué argumento favorece al Premium?',
+        options: [
+          'Más puertos y el touchpad de colaboración',
+          'Aluminio mecanizado y un perfil más fino',
+          'Un diseño más fino que el del XPS'
+        ],
+        correct: 0
+      },
+      {
+        id: 75, category: 5,
+        question: 'Un cliente equipa a consultores que viajan cada semana. ¿Qué Dell Pro le propones?',
+        options: [
+          'Dell Pro 7',
+          'Dell Pro 5',
+          'Dell Pro 3'
+        ],
+        correct: 0
+      },
+      {
+        id: 76, category: 5,
+        question: 'Un cliente busca equipos para creadores técnicos con el máximo rendimiento de procesador y gráficos. ¿Qué Dell encajan?',
+        options: [
+          'Dell Pro Precision, XPS o Pro 5',
+          'Dell Pro Precision, Premium o Pro 7',
+          'Dell XPS, Pro 7 o Pro Micro'
+        ],
+        correct: 0
+      },
+
+      // ==================== BLOQUE 6: PROCESADORES INTEL E INTEL VPRO (16) ====================
+      {
+        id: 77, category: 6,
+        question: '¿En qué uso alcanza el Dell XPS 16 con Intel® Core™ Ultra 7 355 sus 27 horas de autonomía?',
+        options: [
+          'Reproduciendo vídeo en streaming',
+          'Con ofimática en UL Procyon',
+          'En Teams con Studio Effects'
+        ],
+        correct: 0
+      },
+      {
+        id: 78, category: 6,
+        question: '¿Qué Intel® Core Series 3 eliges si el cliente quiere la estabilidad de Intel SIPP?',
+        options: [
+          'Intel® Core 7 360 o Intel® Core 5 330',
+          'Intel® Core 5 330 o Intel® Core 5 320',
+          'Intel® Core 7 360 o Intel® Core 7 350'
+        ],
+        correct: 0
+      },
+      {
+        id: 79, category: 6,
+        question: 'Un cliente renueva portátiles con Intel® Core i7-1265U de hace 4 años por Intel® Core™ Ultra 7 365. ¿En qué mejora más?',
+        options: [
+          'La IA en la GPU',
+          'La edición de vídeo',
+          'El rendimiento gráfico'
+        ],
+        correct: 0
+      },
+      {
+        id: 80, category: 6,
+        question: '¿Qué capa de Intel vPro reúne la telemetría de hardware con IA y los datos de consumo del PC?',
+        options: [
+          'vPro Intelligence',
+          'vPro Manageability',
+          'vPro Optimized'
+        ],
+        correct: 0
+      },
+      {
+        id: 81, category: 6,
+        question: 'Un cliente quiere gestionar en remoto su flota vPro sin montar un servidor propio. ¿Qué le propones?',
+        options: [
+          'Intel Fleet Services',
+          'Intel vPro Optimized',
+          'Intel Battery Life Diagnostics'
+        ],
+        correct: 0
+      },
+      {
+        id: 82, category: 6,
+        question: '¿Qué tecnología de Intel Xeon ayuda a acelerar tareas de inteligencia artificial?',
+        options: [
+          'AMX',
+          'DDR5',
+          'PCIe'
+        ],
+        correct: 0
+      },
+      {
+        id: 83, category: 6,
+        question: '¿Qué es Intel 18A?',
+        options: [
+          'Un proceso de fabricación de chips',
+          'Una familia de procesadores para servidores',
+          'Un chipset para estaciones de trabajo'
+        ],
+        correct: 0
+      },
+      {
+        id: 84, category: 6,
+        question: '¿Qué formato de precisión numérica admite Intel AMX?',
+        options: [
+          'FP16',
+          'FP32',
+          'FP64'
+        ],
+        correct: 0
+      },
+      {
+        id: 85, category: 6,
+        question: '¿Qué añade la configuración Dell para creadores técnicos a la de analistas?',
+        options: [
+          '12 Xe para el máximo rendimiento gráfico',
+          'Pasar de 8 a 16 núcleos de procesador',
+          'vPro y Copilot+ en la configuración ancla'
+        ],
+        correct: 0
+      },
+      {
+        id: 86, category: 6,
+        question: '¿En qué sector da Intel® Xeon® 698X su mayor mejora en SPEC Workstation frente al Intel® Xeon® w9-3595X?',
+        options: [
+          'Servicios financieros',
+          'IA y machine learning',
+          'Ciencias de la vida'
+        ],
+        correct: 0
+      },
+      {
+        id: 87, category: 6,
+        question: '¿Qué familia Intel corresponde a los profesionales del día a día?',
+        options: [
+          'Intel® Core Series 3',
+          'Intel® Core™ Ultra Series 3',
+          'Intel® Core™ Ultra X Series 3'
+        ],
+        correct: 0
+      },
+      {
+        id: 88, category: 6,
+        question: '¿Qué Intel® Core™ Ultra Series 3 propones para el máximo rendimiento en gráficos integrados?',
+        options: [
+          'Intel® Core™ Ultra X9 388H o Intel® Core™ Ultra X7 368H, con Intel Arc B390',
+          'Intel® Core™ Ultra 9 386H o Intel® Core™ Ultra 7 366H, con 16 núcleos',
+          'Intel® Core™ Ultra 5 338H o Intel® Core™ Ultra 5 336H, con Intel Arc B370'
+        ],
+        correct: 0
+      },
+      {
+        id: 89, category: 6,
+        question: '¿En qué uso consume hasta un 64 % menos el Intel® Core 7 360 que el Intel® Core 7 150U?',
+        options: [
+          'Vídeo de YouTube en 4K',
+          'Ofimática con Procyon',
+          'Zoom con efectos de IA'
+        ],
+        correct: 0
+      },
+      {
+        id: 90, category: 6,
+        question: '¿Qué hace a Intel® Xeon® 600 un procesador «diseñado para desarrollar IA» en workstation?',
+        options: [
+          'Intel AMX con FP16 y soporte multi-GPU',
+          'Intel AMX con FP16 y el chipset Intel W890',
+          'Hasta 86 núcleos y soporte multi-GPU'
+        ],
+        correct: 0
+      },
+      {
+        id: 91, category: 6,
+        question: '¿Qué unidad gana más peso en las nuevas funciones de IA al pasar de Intel® Core™ Ultra Series 2 a Intel® Core™ Ultra Series 3?',
+        options: [
+          'La NPU, del 16 % a cerca del 31 %',
+          'La GPU, del 51 % a cerca del 62 %',
+          'La CPU, del 18 % a cerca del 22 %'
+        ],
+        correct: 0
+      },
+      {
+        id: 92, category: 6,
+        question: '¿Qué consigue Intel® Core™ Ultra Series 3 frente al Intel® Core™ Ultra 9 288V con un consumo similar?',
+        options: [
+          'Hasta un 60 % más de rendimiento',
+          'Hasta un 77 % más de rendimiento',
+          'Hasta 5 veces más rendimiento'
+        ],
+        correct: 0
+      }
+    ];
+
+    /* =========================================================================
+       3. ESTADO PERSISTENTE (localStorage) Y ESTADO DE SESIÓN
+       ========================================================================= */
+    const STORAGE_KEY = 'pioneros_h2_27_dell_v2_6bloques';
+
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          return { failedIds: [], bestScore: 0, totalAnswered: 0, totalCorrect: 0, autoAdvance: false };
+        }
+        const parsed = JSON.parse(raw);
+        return {
+          failedIds: Array.isArray(parsed.failedIds) ? parsed.failedIds.filter(id => id >= 1 && id <= QUESTIONS.length) : [],
+          bestScore: Number(parsed.bestScore) || 0,
+          totalAnswered: Number(parsed.totalAnswered) || 0,
+          totalCorrect: Number(parsed.totalCorrect) || 0,
+          autoAdvance: Boolean(parsed.autoAdvance)
+        };
+      } catch (err) {
+        return { failedIds: [], bestScore: 0, totalAnswered: 0, totalCorrect: 0, autoAdvance: false };
+      }
+    }
+
+    function saveProgress() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      } catch (err) {
+        // Ignorar errores de cuota/privacidad en entornos restringidos
+      }
+    }
+
+    let progress = loadProgress();
+
+    let session = {
+      mode: 'challenge', // 'challenge' | 'topic' | 'failed' | 'retry_session'
+      categoryId: 'all',
+      questions: [],
+      currentIndex: 0,
+      currentShuffledOptions: [],
+      answered: false,
+      correctCount: 0,
+      wrongCount: 0,
+      streak: 0,
+      score: 0,
+      questionStartTime: 0,
+      totalElapsedMs: 0,
+      timerInterval: null,
+      autoAdvanceTimeout: null,
+      sessionFails: [] // { question, selectedText, correctText, timeSec }
+    };
+
+    let pendingModalAction = null;
+
+    /* =========================================================================
+       4. UTILIDADES
+       ========================================================================= */
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function getCategoryById(id) {
+      return CATEGORIES.find(c => c.id === id) || { short: 'Bloque', title: 'General' };
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2400);
+    }
+
+    function switchView(viewName) {
+      document.getElementById('view-home').classList.toggle('hidden', viewName !== 'home');
+      document.getElementById('view-quiz').classList.toggle('hidden', viewName !== 'quiz');
+      document.getElementById('view-results').classList.toggle('hidden', viewName !== 'results');
+
+      const backBtn = document.getElementById('nav-back-btn');
+      if (viewName === 'home') {
+        backBtn.classList.add('hidden');
+        backBtn.classList.remove('inline-flex');
+      } else {
+        backBtn.classList.remove('hidden');
+        backBtn.classList.add('inline-flex');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function stopTimers() {
+      if (session.timerInterval) {
+        clearInterval(session.timerInterval);
+        session.timerInterval = null;
+      }
+      if (session.autoAdvanceTimeout) {
+        clearTimeout(session.autoAdvanceTimeout);
+        session.autoAdvanceTimeout = null;
+      }
+    }
+
+    /* =========================================================================
+       5. RENDERIZADO DE INICIO (DASHBOARD)
+       ========================================================================= */
+    function renderHome() {
+      stopTimers();
+      switchView('home');
+
+      // Estadísticas globales
+      document.getElementById('stat-bank-total').textContent = QUESTIONS.length;
+      document.getElementById('stat-best-score').textContent = progress.bestScore;
+      const acc = progress.totalAnswered > 0 ? Math.round((progress.totalCorrect / progress.totalAnswered) * 100) : 0;
+      document.getElementById('stat-accuracy').textContent = `${acc}%`;
+      document.getElementById('stat-total-answered').textContent = `${progress.totalAnswered} resp.`;
+      document.getElementById('stat-failed').textContent = progress.failedIds.length;
+
+      // Toggle avance rápido
+      document.getElementById('toggle-auto-advance').checked = progress.autoAdvance;
+
+      // Botón Repaso de Fallos
+      const btnFailed = document.getElementById('btn-start-failed');
+      const btnFailedText = document.getElementById('btn-start-failed-text');
+      const btnClearFails = document.getElementById('btn-open-clear-fails');
+
+      if (progress.failedIds.length > 0) {
+        btnFailed.disabled = false;
+        btnFailedText.textContent = `Repasar ${progress.failedIds.length} ${progress.failedIds.length === 1 ? 'fallo guardado' : 'fallos guardados'}`;
+        btnClearFails.classList.remove('hidden');
+      } else {
+        btnFailed.disabled = true;
+        btnFailedText.textContent = 'Sin fallos pendientes';
+        btnClearFails.classList.add('hidden');
+      }
+
+      // Grid de los 6 bloques temáticos
+      const grid = document.getElementById('categories-grid');
+      grid.innerHTML = '';
+
+      CATEGORIES.forEach(cat => {
+        const count = QUESTIONS.filter(q => q.category === cat.id).length;
+        const failedInCat = QUESTIONS.filter(q => q.category === cat.id && progress.failedIds.includes(q.id)).length;
+
+        const btn = document.createElement('button');
+        btn.className = 'category-btn p-4 rounded-xl border border-slate-200 hover:border-dell-500 hover:bg-dell-50/30 transition-all text-left flex items-start justify-between gap-3 group';
+        btn.dataset.category = String(cat.id);
+
+        btn.innerHTML = `
+          <div class="flex items-start gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-lg bg-slate-100 group-hover:bg-dell-500 group-hover:text-white text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 transition-colors">
+              B${cat.id}
+            </div>
+            <div class="min-w-0">
+              <p class="font-bold text-sm text-slate-900 group-hover:text-dell-700 transition-colors leading-snug">${cat.title}</p>
+              <p class="text-xs text-slate-500 mt-0.5 line-clamp-1">${cat.desc}</p>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">${count} preguntas</span>
+                ${failedInCat > 0 ? `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">${failedInCat} ${failedInCat === 1 ? 'fallo' : 'fallos'}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-dell-500 shrink-0 mt-1 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        `;
+
+        btn.addEventListener('click', () => startSession('topic', cat.id));
+        grid.appendChild(btn);
+      });
+    }
+
+    /* =========================================================================
+       6. INICIO Y GESTIÓN DEL QUIZ
+       ========================================================================= */
+    function startSession(mode, categoryId = 'all', customQuestions = null) {
+      stopTimers();
+
+      let pool = [];
+      let badgeText = '';
+
+      if (mode === 'challenge') {
+        pool = shuffleArray(QUESTIONS).slice(0, 5);
+        badgeText = 'Reto Rápido';
+      } else if (mode === 'failed') {
+        pool = shuffleArray(QUESTIONS.filter(q => progress.failedIds.includes(q.id)));
+        badgeText = 'Repaso de Fallos';
+      } else if (mode === 'retry_session' && Array.isArray(customQuestions)) {
+        pool = shuffleArray(customQuestions);
+        badgeText = 'Repaso de Sesión';
+      } else {
+        if (categoryId === 'all') {
+          pool = shuffleArray(QUESTIONS);
+          badgeText = 'Todas las temáticas';
+        } else {
+          const catNum = Number(categoryId);
+          pool = shuffleArray(QUESTIONS.filter(q => q.category === catNum));
+          badgeText = getCategoryById(catNum).short;
+        }
+      }
+
+      if (pool.length === 0) {
+        showToast('No hay preguntas disponibles para este modo.');
+        renderHome();
+        return;
+      }
+
+      session = {
+        mode,
+        categoryId,
+        questions: pool,
+        currentIndex: 0,
+        currentShuffledOptions: [],
+        answered: false,
+        correctCount: 0,
+        wrongCount: 0,
+        streak: 0,
+        score: 0,
+        questionStartTime: 0,
+        totalElapsedMs: 0,
+        timerInterval: null,
+        autoAdvanceTimeout: null,
+        sessionFails: []
+      };
+
+      document.getElementById('quiz-mode-badge').textContent = badgeText;
+      const scoreWrap = document.getElementById('live-score-wrap');
+      if (mode === 'challenge') {
+        scoreWrap.classList.remove('hidden');
+        scoreWrap.classList.add('inline-flex');
+      } else {
+        scoreWrap.classList.add('hidden');
+        scoreWrap.classList.remove('inline-flex');
+      }
+
+      switchView('quiz');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      stopTimers();
+      session.answered = false;
+
+      const q = session.questions[session.currentIndex];
+      const total = session.questions.length;
+      const cat = getCategoryById(q.category);
+
+      // Progreso y contadores
+      document.getElementById('quiz-progress-text').textContent = `Pregunta ${session.currentIndex + 1} de ${total}`;
+      document.getElementById('quiz-progress-bar').style.width = `${(session.currentIndex / total) * 100}%`;
+      document.getElementById('live-correct').textContent = session.correctCount;
+      document.getElementById('live-wrong').textContent = session.wrongCount;
+      document.getElementById('live-score').textContent = session.score;
+
+      // Metadatos y enunciado
+      document.getElementById('question-category-tag').textContent = `${cat.short}: ${cat.title}`;
+      document.getElementById('question-id-tag').textContent = `#${q.id}`;
+      document.getElementById('question-text').textContent = q.question;
+
+      // Opciones barajadas
+      const indexedOptions = q.options.map((text, idx) => ({
+        text,
+        isCorrect: idx === q.correct
+      }));
+      session.currentShuffledOptions = shuffleArray(indexedOptions);
+
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      session.currentShuffledOptions.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn w-full text-left p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-dell-500 hover:bg-dell-50/40 active:scale-[0.995] transition-all flex items-start gap-3.5 group focus:outline-none focus:ring-2 focus:ring-dell-500/30';
+        btn.dataset.index = String(idx);
+
+        btn.innerHTML = `
+          <span class="opt-badge w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-dell-500 group-hover:text-white text-slate-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 transition-colors">
+            ${idx + 1}
+          </span>
+          <span class="opt-text text-sm sm:text-base font-medium text-slate-800 leading-snug flex-1">${opt.text}</span>
+          <span class="opt-icon shrink-0 mt-0.5 hidden"></span>
+        `;
+
+        btn.addEventListener('click', () => handleAnswer(idx));
+        container.appendChild(btn);
+      });
+
+      // Ocultar feedback
+      document.getElementById('feedback-area').classList.add('hidden');
+      document.getElementById('btn-next-label').textContent =
+        session.currentIndex + 1 === total ? 'Ver resultados' : 'Siguiente';
+
+      // Arrancar cronómetro en vivo
+      session.questionStartTime = performance.now();
+      document.getElementById('live-timer').textContent = '0.0s';
+      document.getElementById('live-total-timer').textContent = `${(session.totalElapsedMs / 1000).toFixed(1)}s`;
+
+      session.timerInterval = setInterval(() => {
+        const qElapsed = performance.now() - session.questionStartTime;
+        document.getElementById('live-timer').textContent = `${(qElapsed / 1000).toFixed(1)}s`;
+        document.getElementById('live-total-timer').textContent = `${((session.totalElapsedMs + qElapsed) / 1000).toFixed(1)}s`;
+      }, 100);
+    }
+
+    function handleAnswer(selectedIndex) {
+      if (session.answered) return;
+      session.answered = true;
+      stopTimers();
+
+      const qElapsedMs = performance.now() - session.questionStartTime;
+      const qElapsedSec = qElapsedMs / 1000;
+      session.totalElapsedMs += qElapsedMs;
+
+      document.getElementById('live-timer').textContent = `${qElapsedSec.toFixed(1)}s`;
+      document.getElementById('live-total-timer').textContent = `${(session.totalElapsedMs / 1000).toFixed(1)}s`;
+
+      const q = session.questions[session.currentIndex];
+      const chosen = session.currentShuffledOptions[selectedIndex];
+      const correctObj = session.currentShuffledOptions.find(o => o.isCorrect);
+
+      // Actualizar estadísticas globales
+      progress.totalAnswered += 1;
+
+      let pointsEarned = 0;
+
+      if (chosen.isCorrect) {
+        session.correctCount += 1;
+        session.streak += 1;
+        progress.totalCorrect += 1;
+
+        // Si estaba en la lista de fallos, eliminarla automáticamente
+        const failIdx = progress.failedIds.indexOf(q.id);
+        if (failIdx !== -1) {
+          progress.failedIds.splice(failIdx, 1);
+        }
+
+        // Cálculo de puntuación en Reto Rápido (base 100 + bonus velocidad hasta 20 + bonus racha)
+        if (session.mode === 'challenge') {
+          const speedBonus = Math.max(0, Math.round(20 - qElapsedSec * 2));
+          const streakBonus = session.streak > 1 ? (session.streak - 1) * 5 : 0;
+          pointsEarned = 100 + speedBonus + streakBonus;
+          session.score += pointsEarned;
+        }
+      } else {
+        session.wrongCount += 1;
+        session.streak = 0;
+
+        // Añadir a la lista de fallos si no estaba
+        if (!progress.failedIds.includes(q.id)) {
+          progress.failedIds.push(q.id);
+        }
+
+        session.sessionFails.push({
+          question: q,
+          selectedText: chosen.text,
+          correctText: correctObj.text,
+          timeSec: qElapsedSec
+        });
+      }
+
+      saveProgress();
+
+      // Actualizar contadores en vivo
+      document.getElementById('live-correct').textContent = session.correctCount;
+      document.getElementById('live-wrong').textContent = session.wrongCount;
+      document.getElementById('live-score').textContent = session.score;
+
+      // Pintar estilos de las opciones
+      const buttons = document.querySelectorAll('#options-container .option-btn');
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        btn.classList.remove('hover:border-dell-500', 'hover:bg-dell-50/40');
+        const opt = session.currentShuffledOptions[idx];
+        const badge = btn.querySelector('.opt-badge');
+        const icon = btn.querySelector('.opt-icon');
+
+        if (opt.isCorrect) {
+          btn.classList.remove('border-slate-200', 'bg-white');
+          btn.classList.add('border-emerald-500', 'bg-emerald-50/80');
+          badge.classList.remove('bg-slate-100', 'text-slate-600');
+          badge.classList.add('bg-emerald-500', 'text-white');
+          icon.classList.remove('hidden');
+          icon.innerHTML = `<svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
+        } else if (idx === selectedIndex && !opt.isCorrect) {
+          btn.classList.remove('border-slate-200', 'bg-white');
+          btn.classList.add('border-rose-500', 'bg-rose-50/80');
+          badge.classList.remove('bg-slate-100', 'text-slate-600');
+          badge.classList.add('bg-rose-500', 'text-white');
+          icon.classList.remove('hidden');
+          icon.innerHTML = `<svg class="w-5 h-5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
+        } else {
+          btn.classList.add('opacity-55');
+        }
+      });
+
+      // Mostrar área de feedback
+      const fbArea = document.getElementById('feedback-area');
+      const fbMsg = document.getElementById('feedback-message');
+      fbArea.classList.remove('hidden');
+
+      if (chosen.isCorrect) {
+        const ptsText = session.mode === 'challenge' ? ` (+${pointsEarned} pts)` : '';
+        fbMsg.className = 'flex items-start gap-2.5 text-sm font-semibold text-emerald-700';
+        fbMsg.innerHTML = `
+          <svg class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>¡Correcto! Respondida en ${qElapsedSec.toFixed(1)}s${ptsText}</span>
+        `;
+
+        // Avance automático rápido al acertar (en modo práctica libre si el toggle está activo)
+        if (session.mode === 'topic' && progress.autoAdvance) {
+          session.autoAdvanceTimeout = setTimeout(() => {
+            nextQuestion();
+          }, 750);
+        }
+      } else {
+        fbMsg.className = 'flex items-start gap-2.5 text-sm font-semibold text-rose-700';
+        fbMsg.innerHTML = `
+          <svg class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Incorrecto. Guardada en tu lista de Repaso de Fallos.</span>
+        `;
+      }
+    }
+
+    function nextQuestion() {
+      stopTimers();
+      if (session.currentIndex + 1 < session.questions.length) {
+        session.currentIndex += 1;
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    /* =========================================================================
+       7. PANTALLA DE RESULTADOS
+       ========================================================================= */
+    function showResults() {
+      stopTimers();
+      switchView('results');
+
+      const total = session.questions.length;
+      const percent = total > 0 ? Math.round((session.correctCount / total) * 100) : 0;
+      const totalSec = session.totalElapsedMs / 1000;
+      const avgSec = total > 0 ? totalSec / total : 0;
+
+      // Icono y título según rendimiento
+      const iconWrap = document.getElementById('result-icon-wrap');
+      const titleEl = document.getElementById('result-title');
+      const subEl = document.getElementById('result-subtitle');
+
+      if (percent === 100) {
+        iconWrap.className = 'w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 bg-emerald-100 text-emerald-600';
+        iconWrap.innerHTML = `<svg class="w-9 h-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+        titleEl.textContent = '¡Pleno perfecto!';
+        subEl.textContent = 'Has clavado todas las preguntas de esta sesión.';
+      } else if (percent >= 70) {
+        iconWrap.className = 'w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 bg-dell-100 text-dell-600';
+        iconWrap.innerHTML = `<svg class="w-9 h-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>`;
+        titleEl.textContent = '¡Buen resultado!';
+        subEl.textContent = 'Muy buen nivel. Repasa los pocos fallos para asegurar el pleno.';
+      } else {
+        iconWrap.className = 'w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 bg-amber-100 text-amber-600';
+        iconWrap.innerHTML = `<svg class="w-9 h-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+        titleEl.textContent = 'Sesión completada';
+        subEl.textContent = 'Los errores se han guardado automáticamente para repasarlos.';
+      }
+
+      document.getElementById('res-correct').textContent = session.correctCount;
+      document.getElementById('res-wrong').textContent = session.wrongCount;
+      document.getElementById('res-percent').textContent = `${percent}%`;
+      document.getElementById('res-total-time').textContent = `${totalSec.toFixed(1)}s`;
+      document.getElementById('res-avg-time').textContent = `${avgSec.toFixed(1)}s`;
+
+      // Banner de puntuación en Reto Rápido
+      const scoreBanner = document.getElementById('res-score-banner');
+      if (session.mode === 'challenge') {
+        scoreBanner.classList.remove('hidden');
+        document.getElementById('res-score').textContent = session.score;
+
+        if (session.score > progress.bestScore) {
+          progress.bestScore = session.score;
+          saveProgress();
+          document.getElementById('res-record-note').textContent = '¡Nuevo récord personal en Reto Rápido!';
+        } else {
+          document.getElementById('res-record-note').textContent = `Tu mejor marca actual: ${progress.bestScore} pts`;
+        }
+      } else {
+        scoreBanner.classList.add('hidden');
+      }
+
+      // Panel de fallos de esta sesión
+      const failsPanel = document.getElementById('session-fails-panel');
+      const failsList = document.getElementById('session-fails-list');
+      const retryFailsBtn = document.getElementById('btn-retry-session-fails');
+
+      if (session.sessionFails.length > 0) {
+        failsPanel.classList.remove('hidden');
+        retryFailsBtn.classList.remove('hidden');
+        retryFailsBtn.classList.add('inline-flex');
+        document.getElementById('session-fails-count').textContent = session.sessionFails.length;
+
+        failsList.innerHTML = '';
+        session.sessionFails.forEach(item => {
+          const cat = getCategoryById(item.question.category);
+          const row = document.createElement('div');
+          row.className = 'p-4 sm:p-5 text-left space-y-2';
+          row.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600">${cat.short}: ${cat.title}</span>
+              <span class="text-xs font-medium text-slate-400 tabular-nums">${item.timeSec.toFixed(1)}s</span>
+            </div>
+            <p class="font-bold text-sm sm:text-base text-slate-900">${item.question.question}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs sm:text-sm">
+              <div class="p-2.5 rounded-lg bg-rose-50 border border-rose-100 text-rose-800">
+                <span class="font-bold block text-[11px] uppercase tracking-wide text-rose-600 mb-0.5">Tu respuesta</span>
+                ${item.selectedText}
+              </div>
+              <div class="p-2.5 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-800">
+                <span class="font-bold block text-[11px] uppercase tracking-wide text-emerald-600 mb-0.5">Respuesta correcta</span>
+                ${item.correctText}
+              </div>
+            </div>
+          `;
+          failsList.appendChild(row);
+        });
+      } else {
+        failsPanel.classList.add('hidden');
+        retryFailsBtn.classList.add('hidden');
+        retryFailsBtn.classList.remove('inline-flex');
+      }
+    }
+
+    /* =========================================================================
+       8. MODAL DE CONFIRMACIÓN Y EVENTOS
+       ========================================================================= */
+    function openConfirmModal(title, desc, onConfirm) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-desc').textContent = desc;
+      pendingModalAction = onConfirm;
+      document.getElementById('confirm-modal').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+      pendingModalAction = null;
+      document.getElementById('confirm-modal').classList.add('hidden');
+    }
+
+    document.getElementById('btn-modal-cancel').addEventListener('click', closeConfirmModal);
+    document.getElementById('btn-modal-confirm').addEventListener('click', () => {
+      if (typeof pendingModalAction === 'function') pendingModalAction();
+      closeConfirmModal();
+    });
+
+    // Navegación principal
+    document.getElementById('header-home-btn').addEventListener('click', renderHome);
+    document.getElementById('nav-back-btn').addEventListener('click', renderHome);
+    document.getElementById('btn-go-home').addEventListener('click', renderHome);
+
+    // Modos desde Inicio
+    document.getElementById('btn-start-challenge').addEventListener('click', () => startSession('challenge'));
+    document.getElementById('btn-start-failed').addEventListener('click', () => startSession('failed'));
+    document.querySelector('[data-category="all"]').addEventListener('click', () => startSession('topic', 'all'));
+
+    // Toggle avance automático
+    document.getElementById('toggle-auto-advance').addEventListener('change', (e) => {
+      progress.autoAdvance = e.target.checked;
+      saveProgress();
+      showToast(progress.autoAdvance ? 'Avance rápido activado' : 'Avance rápido desactivado');
+    });
+
+    // Botones de reseteo
+    document.getElementById('btn-open-clear-fails').addEventListener('click', () => {
+      openConfirmModal(
+        'Limpiar historial de fallos',
+        'Se vaciará la lista de preguntas falladas guardadas, manteniendo tus estadísticas globales y tu mejor marca.',
+        () => {
+          progress.failedIds = [];
+          saveProgress();
+          renderHome();
+          showToast('Historial de fallos limpiado');
+        }
+      );
+    });
+
+    document.getElementById('btn-open-reset-all').addEventListener('click', () => {
+      openConfirmModal(
+        'Reiniciar todo el progreso',
+        'Se borrarán todas tus estadísticas, tu mejor marca en Reto Rápido y tu lista de fallos guardados.',
+        () => {
+          progress = { failedIds: [], bestScore: 0, totalAnswered: 0, totalCorrect: 0, autoAdvance: false };
+          saveProgress();
+          renderHome();
+          showToast('Progreso reiniciado por completo');
+        }
+      );
+    });
+
+    // Botones de Quiz y Resultados
+    document.getElementById('btn-next-question').addEventListener('click', nextQuestion);
+
+    document.getElementById('btn-new-session').addEventListener('click', () => {
+      if (session.mode === 'retry_session') {
+        startSession('challenge');
+      } else {
+        startSession(session.mode, session.categoryId);
+      }
+    });
+
+    document.getElementById('btn-retry-session-fails').addEventListener('click', () => {
+      const failedQuestions = session.sessionFails.map(f => f.question);
+      startSession('retry_session', 'all', failedQuestions);
+    });
+
+    // Atajos de teclado (1, 2, 3 y Enter / Espacio)
+    document.addEventListener('keydown', (e) => {
+      const quizVisible = !document.getElementById('view-quiz').classList.contains('hidden');
+      if (!quizVisible) return;
+
+      if (!session.answered && ['1', '2', '3'].includes(e.key)) {
+        const idx = Number(e.key) - 1;
+        if (idx < session.currentShuffledOptions.length) {
+          handleAnswer(idx);
+        }
+      } else if (session.answered && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        nextQuestion();
+      }
+    });
+
+    // Inicializar aplicación
+    renderHome();
+  </script>
+</body>
+</html>
